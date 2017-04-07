@@ -1,0 +1,17 @@
+@charset "UTF-8";
+/**
+ * default.css
+ * @authors Joe Jiang (hijiangtao@gmail.com)
+ * @date    2017-04-07 11:32:35
+ * @version $Id$
+ */
+
+#chart {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-400px, -300px);
+	width: 800px;
+	height: 600px;
+	/*background-color: red;*/
+}
