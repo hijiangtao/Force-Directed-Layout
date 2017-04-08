@@ -3,12 +3,13 @@
 ## Reference 
 
 * [springy](https://github.com/dhotson/springy)
-* []()
+* [d3-force](https://github.com/d3/d3-force), D3 wiki
+* [D3V4 Force Directed Layout Example](https://bl.ocks.org/mbostock/4062045)
 
-temp
+## Configurations
 
-http://zhenghaoju700.blog.163.com/blog/static/13585951820114153548541/
-http://bl.ocks.org/sathomas/11550728
-https://bl.ocks.org/mbostock/4062045
-https://github.com/d3/d3-force
+Run the webpack and get the home.js at `dist` directory. The main library file is `forceLayout.js`, wrote in ES6 grammar.
 
+Joe
+
+2017.4

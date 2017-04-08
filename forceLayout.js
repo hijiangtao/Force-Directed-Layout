@@ -7,45 +7,17 @@
 
 'use strict'
 import * as d3 from 'd3';
+import Vector from './Vector';
+import Spring from './Spring';
+import {Node, Edge} from './Elements';
 
 /**
- * Vector class
+ * Point Struct
+ * @param {[type]} position [description]
+ * @param {Number} id       [description]
+ * @param {Number} group    [description]
+ * @param {Number} mass     [description]
  */
-class Vector {
-	constructor(x, y) {
-		this.x = x; // x position
-		this.y = y; // y position
-	}
-
-	getvec() {
-		return this;
-	}
-
-	add(v2) {
-		return new Vector(this.x + v2.x, this.y + v2.y);
-	}
-
-	subtract(v2) {
-		return new Vector(this.x - v2.x, this.y - v2.y);
-	}
-
-	magnitude() {
-		return Math.sqrt(this.x * this.x + this.y * this.y);
-	}
-
-	normalise() {
-		return this.divide(this.magnitude());
-	}
-
-	divide(n) {
-		return new Vector((this.x / n) || 0, (this.y / n) || 0);
-	}
-
-	multiply(n) {
-		return new Vector(this.x * n, this.y * n);
-	}
-}
-
 let Point = function(position, id = -1, group = -1, mass = 1.0) {
 	this.p = position;
 	this.m = mass;
@@ -55,73 +27,31 @@ let Point = function(position, id = -1, group = -1, mass = 1.0) {
 	this.group = group;
 
 	let self = this;
-
 	this.updateAcc = function(force) {
 		self.a = self.a.add(force.divide(self.m));
 	}
 }
 
 /**
- * Spring class
- */
-class Spring {
-	constructor(source, target, length) {
-		this.source = source;
-		this.target = target;
-		this.length = length;
-	}
-
-	// updateSpring() {
-
-	// }
-}
-
-/**
- * Node
- * @param {[type]} id   [description]
- * @param {[type]} data [description]
- */
-let Node = function(data) {
-	this.id = data.id;
-	this.data = (data !== undefined) ? data : {};
-};
-
-/**
- * Edge
- * @param {[type]} id     [description]
- * @param {[type]} source [description]
- * @param {[type]} target [description]
- * @param {[type]} data   [description]
- */
-let Edge = function(id, source, target, data) {
-	this.id = id;
-	this.source = source;
-	this.target = target;
-	this.data = (data !== undefined) ? data : {};
-};
-
-/**
  * Force Layout class
  */
 class forceLayout {
-	constructor(parentid) {
-		let style = window.getComputedStyle(document.getElementById(parentid)),
-			height = Number.parseFloat(style.getPropertyValue("height")),
-			width = Number.parseFloat(style.getPropertyValue("width"));
-
+	constructor(options) {
 		this.props = {
 			approach: 'canvas',
-			parentId: parentid,
+			detail: true,
+			parentId: 'chart',
 			containerId: 'forcedLayoutView',
-			width: width, // DOM width
-			height: height, // DOM height
+			width: 800, // DOM width
+			height: 600, // DOM height
 			stiffness: 200.0, // spring stiffness
 			repulsion: 200.0, // repulsion
 			damping: 0.8, // volocity damping factor
 			minEnergyThreshold: 0.1, // threshold to determine whether to stop
 			maxSpeed: 1000, // max node speed
 			defSpringLen: 20,
-			coulombDisScale: 0.01
+			coulombDisScale: 0.01,
+			tickInterval: 0.02
 		};
 
 		this.nodes = [];
@@ -134,12 +64,24 @@ class forceLayout {
 		this.initState = true;
 		this.nextEdgeId = 0;
 		this.iterations = 0;
+		this.renderTime = 0;
 
-		this.center = new Vector(width / 2, height / 2);
+		this.center = {};
 		this.color = d3.scaleOrdinal(d3.schemeCategory20);
 
 		this.canvas = {};
 		this.ctx = {};
+
+		/**
+		 * Iterate options to update this.props
+		 */
+		if ('undefined' !== typeof options) {
+			for (let i in options) {
+				if ('undefined' !== typeof options[i]) {
+					this.props[i] = options[i];
+				}
+			}
+		}
 	}
 
 	addNode(node) {
@@ -187,6 +129,14 @@ class forceLayout {
 	};
 
 	setData(data) {
+		// clean all data
+		this.nodes = [];
+		this.edges = [];
+		this.nodeSet = {};
+		this.edgeSet = {};
+		this.nodePoints = new Map();
+		this.edgeSprings = new Map();
+
 		// Format data to json object
 		if (typeof data == 'string' || data instanceof String) {
 			data = JSON.parse(data);
@@ -196,6 +146,7 @@ class forceLayout {
 		if ('nodes' in data || 'edges' in data) {
 			this.addNodes(data['nodes']);
 			this.addEdges(data['edges']);
+			this.center = new Vector(this.props.width / 2, this.props.height / 2);
 		}
 	}
 
@@ -227,31 +178,59 @@ class forceLayout {
 			this.edgeSprings.set(edge.id, new Spring(source, target, length));
 		}
 
+		let timer = setInterval(function() {
+			self.renderTime += 10;
+		}, 10);
+
 		window.requestAnimationFrame(function step() {
-			self.tick(0.02);
+			self.tick(self.props.tickInterval);
 			self.render();
 			self.iterations++;
 			let energy = self.calTotalEnergy();
-			console.log('energy', energy);
+
+			if (self.props.detail) {
+				self.updateDetails(energy);
+			}
 
 			if (energy < self.props.minEnergyThreshold || self.iterations === 1000000) {
 				window.cancelAnimationFrame(step);
+				clearInterval(timer);
 			} else {
 				window.requestAnimationFrame(step);
 			}
 		});
 	}
 
-	// step() {
-	// 	this.tick(0.05);
-	// 	this.render();
+	updateDetails(energy) {
+		let ths = document.getElementById('detailTable').getElementsByTagName('td');
+		if (this.iterations === 1) {
+			/**
+			 * Update Items in first time
+			 *
+			 * {Drawing Approach} [1]
+			 * {Node Number} [9]
+			 * {Edge Number} [11]
+			 * {DOM ChildNodes} [15]
+			 */
+			ths[1].innerHTML = this.props.approach;
+			ths[9].innerHTML = this.nodes.length;
+			ths[11].innerHTML = this.edges.length;
+			ths[15].innerHTML = this.props.approach === 'canvas' ? 1 : this.nodes.length + this.edges.length;
+		}
 
-	// 	if (this.calTotalEnergy() < this.minEnergyThreshold) {
-	// 		window.cancelAnimationFrame(this.step);
-	// 	} else {
-	// 		window.requestAnimationFrame(this.step);
-	// 	}
-	// }
+		/**
+		 * Regular update items
+		 * 
+		 * {Render time} [3]
+		 * {Iterations} [5]
+		 * {Current Energy} [7]
+		 * {Used JS Heap Size} [13]
+		 */
+		ths[3].innerHTML = `${this.renderTime}ms`;
+		ths[5].innerHTML = this.iterations;
+		ths[7].innerHTML = energy.toFixed(2);
+		ths[13].innerHTML = `${window.performance.memory.usedJSHeapSize}`;
+	}
 
 	/**
 	 * tick event
@@ -443,6 +422,11 @@ class forceLayout {
 		});
 
 		function initContainerSize() {
+			let e = document.getElementById(self.props.containerId);
+			if (e) {
+				e.parentNode.removeChild(e);
+			}
+
 			if (self.props.approach === 'canvas') {
 				let container = document.createElement('canvas');
 				container.id = self.props.containerId;
@@ -462,10 +446,6 @@ class forceLayout {
 			// svg.innerHTML = '';
 			svg.setAttribute('width', self.props.width);
 			svg.setAttribute('height', self.props.height);
-		}
-
-		function projection() {
-
 		}
 
 		function drawNode(key, val) {
@@ -506,7 +486,7 @@ class forceLayout {
 			let source = val.source,
 				target = val.target,
 				strokeStyle = 'rgb(100,100,100)',
-				strokeWidth = Math.sqrt(val.length)*0.1;
+				strokeWidth = Math.sqrt(val.length) * 0.1;
 
 			if (self.props.approach === 'canvas') {
 				self.ctx.strokeStyle = strokeStyle;

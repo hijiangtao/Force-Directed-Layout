@@ -6,13 +6,14 @@
  */
 
 var webpack = require('webpack');
+var path = require('path');
 
 var devConfig = {
     entry: './index.js',
     output: {
         filename: 'home.js',
-        path: __dirname,
-        publicPath: __dirname
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: path.resolve(__dirname, 'dist')
     },
     devtool: 'source-map',
     module: {

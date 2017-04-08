@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/home/joe/Documents/git/forceLayout";
+/******/ 	__webpack_require__.p = "/home/joe/Documents/git/forceLayout/dist";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -63,9 +63,53 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var ins = new _forceLayout2.default('chart');
-	ins.setData(_data2.default);
-	ins.start();
+	var startRender = function startRender() {
+		var approachSel = document.getElementById('approachSel'),
+		    repulsion = document.getElementById('repuval').value,
+		    stiffness = document.getElementById('stifval').value,
+		    damping = document.getElementById('dampval').value,
+		    approach = approachSel.options[approachSel.selectedIndex].value,
+		    parentid = 'chart',
+		    containerId = 'forcedLayoutView';
+	
+		var style = window.getComputedStyle(document.getElementById(parentid)),
+		    height = Number.parseFloat(style.getPropertyValue("height")),
+		    width = Number.parseFloat(style.getPropertyValue("width"));
+	
+		console.log('get all parameters.');
+		if (!(isNaN(repulsion) || isNaN(stiffness) || isNaN(damping))) {
+			var ins = new _forceLayout2.default({
+				'parentId': parentid,
+				'containerId': containerId,
+				'repulsion': Number.parseFloat(repulsion),
+				'stiffness': Number.parseFloat(stiffness),
+				'damping': Number.parseFloat(damping),
+				'approach': approach,
+				'width': width,
+				'height': height
+			});
+	
+			ins.setData(_data2.default);
+			ins.start();
+		}
+	};
+	
+	/**
+	 * [run description]
+	 * @type {[type]}
+	 */
+	window.onload = function () {
+		var run = document.getElementById('run'),
+		    input = document.getElementsByTagName('input'),
+		    inputList = Array.prototype.slice.call(input);
+	
+		run.addEventListener('click', startRender);
+		inputList.forEach(function (ele) {
+			ele.addEventListener('keydown', function (e) {
+				if (e.which == 13) startRender();
+			});
+		});
+	};
 
 /***/ },
 /* 1 */
@@ -78,7 +122,7 @@
 	});
 	/**
 	 * data_js
-	 * @authors Joe Jiang (hijiangtao@gmail_com)
+	 * @authors Joe Jiang (hijiangtao@gmail.com)
 	 * @date    2017-04-07 20:21:18
 	 * @version $Id$
 	 */
@@ -113,61 +157,29 @@
 	
 	var d3 = _interopRequireWildcard(_d);
 	
+	var _Vector = __webpack_require__(4);
+	
+	var _Vector2 = _interopRequireDefault(_Vector);
+	
+	var _Spring = __webpack_require__(5);
+	
+	var _Spring2 = _interopRequireDefault(_Spring);
+	
+	var _Elements = __webpack_require__(6);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	/**
-	 * Vector class
+	 * Point Struct
+	 * @param {[type]} position [description]
+	 * @param {Number} id       [description]
+	 * @param {Number} group    [description]
+	 * @param {Number} mass     [description]
 	 */
-	var Vector = function () {
-		function Vector(x, y) {
-			_classCallCheck(this, Vector);
-	
-			this.x = x; // x position
-			this.y = y; // y position
-		}
-	
-		_createClass(Vector, [{
-			key: 'getvec',
-			value: function getvec() {
-				return this;
-			}
-		}, {
-			key: 'add',
-			value: function add(v2) {
-				return new Vector(this.x + v2.x, this.y + v2.y);
-			}
-		}, {
-			key: 'subtract',
-			value: function subtract(v2) {
-				return new Vector(this.x - v2.x, this.y - v2.y);
-			}
-		}, {
-			key: 'magnitude',
-			value: function magnitude() {
-				return Math.sqrt(this.x * this.x + this.y * this.y);
-			}
-		}, {
-			key: 'normalise',
-			value: function normalise() {
-				return this.divide(this.magnitude());
-			}
-		}, {
-			key: 'divide',
-			value: function divide(n) {
-				return new Vector(this.x / n || 0, this.y / n || 0);
-			}
-		}, {
-			key: 'multiply',
-			value: function multiply(n) {
-				return new Vector(this.x * n, this.y * n);
-			}
-		}]);
-	
-		return Vector;
-	}();
-	
 	var Point = function Point(position) {
 		var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 		var group = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
@@ -175,59 +187,15 @@
 	
 		this.p = position;
 		this.m = mass;
-		this.v = new Vector(0, 0); // velocity
-		this.a = new Vector(0, 0); // acceleration
+		this.v = new _Vector2.default(0, 0); // velocity
+		this.a = new _Vector2.default(0, 0); // acceleration
 		this.id = id;
 		this.group = group;
 	
 		var self = this;
-	
 		this.updateAcc = function (force) {
 			self.a = self.a.add(force.divide(self.m));
 		};
-	};
-	
-	/**
-	 * Spring class
-	 */
-	
-	var Spring = function Spring(source, target, length) {
-		_classCallCheck(this, Spring);
-	
-		this.source = source;
-		this.target = target;
-		this.length = length;
-	}
-	
-	// updateSpring() {
-	
-	// }
-	;
-	
-	/**
-	 * Node
-	 * @param {[type]} id   [description]
-	 * @param {[type]} data [description]
-	 */
-	
-	
-	var Node = function Node(data) {
-		this.id = data.id;
-		this.data = data !== undefined ? data : {};
-	};
-	
-	/**
-	 * Edge
-	 * @param {[type]} id     [description]
-	 * @param {[type]} source [description]
-	 * @param {[type]} target [description]
-	 * @param {[type]} data   [description]
-	 */
-	var Edge = function Edge(id, source, target, data) {
-		this.id = id;
-		this.source = source;
-		this.target = target;
-		this.data = data !== undefined ? data : {};
 	};
 	
 	/**
@@ -235,26 +203,24 @@
 	 */
 	
 	var forceLayout = function () {
-		function forceLayout(parentid) {
+		function forceLayout(options) {
 			_classCallCheck(this, forceLayout);
-	
-			var style = window.getComputedStyle(document.getElementById(parentid)),
-			    height = Number.parseFloat(style.getPropertyValue("height")),
-			    width = Number.parseFloat(style.getPropertyValue("width"));
 	
 			this.props = {
 				approach: 'canvas',
-				parentId: parentid,
+				detail: true,
+				parentId: 'chart',
 				containerId: 'forcedLayoutView',
-				width: width, // DOM width
-				height: height, // DOM height
+				width: 800, // DOM width
+				height: 600, // DOM height
 				stiffness: 200.0, // spring stiffness
 				repulsion: 200.0, // repulsion
 				damping: 0.8, // volocity damping factor
 				minEnergyThreshold: 0.1, // threshold to determine whether to stop
 				maxSpeed: 1000, // max node speed
 				defSpringLen: 20,
-				coulombDisScale: 0.01
+				coulombDisScale: 0.01,
+				tickInterval: 0.02
 			};
 	
 			this.nodes = [];
@@ -267,12 +233,24 @@
 			this.initState = true;
 			this.nextEdgeId = 0;
 			this.iterations = 0;
+			this.renderTime = 0;
 	
-			this.center = new Vector(width / 2, height / 2);
+			this.center = {};
 			this.color = d3.scaleOrdinal(d3.schemeCategory20);
 	
 			this.canvas = {};
 			this.ctx = {};
+	
+			/**
+	   * Iterate options to update this.props
+	   */
+			if ('undefined' !== typeof options) {
+				for (var i in options) {
+					if ('undefined' !== typeof options[i]) {
+						this.props[i] = options[i];
+					}
+				}
+			}
 		}
 	
 		_createClass(forceLayout, [{
@@ -290,7 +268,7 @@
 			value: function addNodes(data) {
 				var len = data.length;
 				for (var i = 0; i < len; i++) {
-					var node = new Node(data[i]);
+					var node = new _Elements.Node(data[i]);
 					this.addNode(node);
 				}
 			}
@@ -321,13 +299,21 @@
 					}
 	
 					var attr = e['value'],
-					    edge = new Edge(this.nextEdgeId++, node1, node2, attr);
+					    edge = new _Elements.Edge(this.nextEdgeId++, node1, node2, attr);
 					this.addEdge(edge);
 				}
 			}
 		}, {
 			key: 'setData',
 			value: function setData(data) {
+				// clean all data
+				this.nodes = [];
+				this.edges = [];
+				this.nodeSet = {};
+				this.edgeSet = {};
+				this.nodePoints = new Map();
+				this.edgeSprings = new Map();
+	
 				// Format data to json object
 				if (typeof data == 'string' || data instanceof String) {
 					data = JSON.parse(data);
@@ -337,6 +323,7 @@
 				if ('nodes' in data || 'edges' in data) {
 					this.addNodes(data['nodes']);
 					this.addEdges(data['edges']);
+					this.center = new _Vector2.default(this.props.width / 2, this.props.height / 2);
 				}
 			}
 		}, {
@@ -355,7 +342,7 @@
 					var node = this.nodes[i],
 					    x = startX + initSize * (Math.random() - .5),
 					    y = startY + initSize * (Math.random() - .5),
-					    vec = new Vector(x, y);
+					    vec = new _Vector2.default(x, y);
 					this.nodePoints.set(node.id, new Point(vec, node.id, node.data.group));
 				}
 	
@@ -366,34 +353,63 @@
 					    length = this.props.defSpringLen * Number.parseInt(edge.data);
 					// length = source.p.subtract( target.p ).magnitude();
 	
-					this.edgeSprings.set(edge.id, new Spring(source, target, length));
+					this.edgeSprings.set(edge.id, new _Spring2.default(source, target, length));
 				}
 	
+				var timer = setInterval(function () {
+					self.renderTime += 10;
+				}, 10);
+	
 				window.requestAnimationFrame(function step() {
-					self.tick(0.02);
+					self.tick(self.props.tickInterval);
 					self.render();
 					self.iterations++;
 					var energy = self.calTotalEnergy();
-					console.log('energy', energy);
+	
+					if (self.props.detail) {
+						self.updateDetails(energy);
+					}
 	
 					if (energy < self.props.minEnergyThreshold || self.iterations === 1000000) {
 						window.cancelAnimationFrame(step);
+						clearInterval(timer);
 					} else {
 						window.requestAnimationFrame(step);
 					}
 				});
 			}
+		}, {
+			key: 'updateDetails',
+			value: function updateDetails(energy) {
+				var ths = document.getElementById('detailTable').getElementsByTagName('td');
+				if (this.iterations === 1) {
+					/**
+	     * Update Items in first time
+	     *
+	     * {Drawing Approach} [1]
+	     * {Node Number} [9]
+	     * {Edge Number} [11]
+	     * {DOM ChildNodes} [15]
+	     */
+					ths[1].innerHTML = this.props.approach;
+					ths[9].innerHTML = this.nodes.length;
+					ths[11].innerHTML = this.edges.length;
+					ths[15].innerHTML = this.props.approach === 'canvas' ? 1 : this.nodes.length + this.edges.length;
+				}
 	
-			// step() {
-			// 	this.tick(0.05);
-			// 	this.render();
-	
-			// 	if (this.calTotalEnergy() < this.minEnergyThreshold) {
-			// 		window.cancelAnimationFrame(this.step);
-			// 	} else {
-			// 		window.requestAnimationFrame(this.step);
-			// 	}
-			// }
+				/**
+	    * Regular update items
+	    * 
+	    * {Render time} [3]
+	    * {Iterations} [5]
+	    * {Current Energy} [7]
+	    * {Used JS Heap Size} [13]
+	    */
+				ths[3].innerHTML = this.renderTime + 'ms';
+				ths[5].innerHTML = this.iterations;
+				ths[7].innerHTML = energy.toFixed(2);
+				ths[13].innerHTML = '' + window.performance.memory.usedJSHeapSize;
+			}
 	
 			/**
 	   * tick event
@@ -496,7 +512,7 @@
 					if (point.v.magnitude() > this.props.maxSpeed) {
 						point.v = point.v.normalise().multiply(this.props.maxSpeed);
 					}
-					point.a = new Vector(0, 0);
+					point.a = new _Vector2.default(0, 0);
 				}
 			}
 	
@@ -546,8 +562,8 @@
 		}, {
 			key: 'getBounds',
 			value: function getBounds() {
-				var bottomleft = new Vector(-2, -2),
-				    topright = new Vector(2, 2);
+				var bottomleft = new _Vector2.default(-2, -2),
+				    topright = new _Vector2.default(2, 2);
 	
 				this.nodePoints.forEach(function (point, key, map) {
 					if (point.p.x < bottomleft.x) {
@@ -611,6 +627,11 @@
 				});
 	
 				function initContainerSize() {
+					var e = document.getElementById(self.props.containerId);
+					if (e) {
+						e.parentNode.removeChild(e);
+					}
+	
 					if (self.props.approach === 'canvas') {
 						var container = document.createElement('canvas');
 						container.id = self.props.containerId;
@@ -631,8 +652,6 @@
 					svg.setAttribute('width', self.props.width);
 					svg.setAttribute('height', self.props.height);
 				}
-	
-				function projection() {}
 	
 				function drawNode(key, val) {
 					var fillStyle = self.color(val.group),
@@ -17284,6 +17303,155 @@
 	
 	})));
 
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	/**
+	 * Vector.js
+	 * @authors Joe Jiang (hijiangtao@gmail.com)
+	 * @date    2017-04-08 16:39:46
+	 * @version $Id$
+	 */
+	
+	'use strict';
+	/**
+	 * Vector class
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Vector = function () {
+		function Vector(x, y) {
+			_classCallCheck(this, Vector);
+	
+			this.x = x; // x position
+			this.y = y; // y position
+		}
+	
+		_createClass(Vector, [{
+			key: 'getvec',
+			value: function getvec() {
+				return this;
+			}
+		}, {
+			key: 'add',
+			value: function add(v2) {
+				return new Vector(this.x + v2.x, this.y + v2.y);
+			}
+		}, {
+			key: 'subtract',
+			value: function subtract(v2) {
+				return new Vector(this.x - v2.x, this.y - v2.y);
+			}
+		}, {
+			key: 'magnitude',
+			value: function magnitude() {
+				return Math.sqrt(this.x * this.x + this.y * this.y);
+			}
+		}, {
+			key: 'normalise',
+			value: function normalise() {
+				return this.divide(this.magnitude());
+			}
+		}, {
+			key: 'divide',
+			value: function divide(n) {
+				return new Vector(this.x / n || 0, this.y / n || 0);
+			}
+		}, {
+			key: 'multiply',
+			value: function multiply(n) {
+				return new Vector(this.x * n, this.y * n);
+			}
+		}]);
+	
+		return Vector;
+	}();
+	
+	exports.default = Vector;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	/**
+	 * Spring.js
+	 * @authors Joe Jiang (hijiangtao@gmail.com)
+	 * @date    2017-04-08 16:41:07
+	 * @version $Id$
+	 */
+	
+	'use strict';
+	/**
+	 * Spring class
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Spring = function Spring(source, target, length) {
+	  _classCallCheck(this, Spring);
+	
+	  this.source = source;
+	  this.target = target;
+	  this.length = length;
+	};
+	
+	exports.default = Spring;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	/**
+	 * Elements.js
+	 * @authors Joe Jiang (hijiangtao@gmail.com)
+	 * @date    2017-04-08 16:42:41
+	 * @version $Id$
+	 */
+	
+	'use strict';
+	/**
+	 * Node
+	 * @param {[type]} id   [description]
+	 * @param {[type]} data [description]
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var Node = function Node(data) {
+	  this.id = data.id;
+	  this.data = data !== undefined ? data : {};
+	};
+	
+	/**
+	 * Edge
+	 * @param {[type]} id     [description]
+	 * @param {[type]} source [description]
+	 * @param {[type]} target [description]
+	 * @param {[type]} data   [description]
+	 */
+	var Edge = function Edge(id, source, target, data) {
+	  this.id = id;
+	  this.source = source;
+	  this.target = target;
+	  this.data = data !== undefined ? data : {};
+	};
+	
+	exports.Node = Node;
+	exports.Edge = Edge;
 
 /***/ }
 /******/ ]);

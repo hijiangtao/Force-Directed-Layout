@@ -1,6 +1,6 @@
 /**
  * data_js
- * @authors Joe Jiang (hijiangtao@gmail_com)
+ * @authors Joe Jiang (hijiangtao@gmail.com)
  * @date    2017-04-07 20:21:18
  * @version $Id$
  */

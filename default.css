@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 /**
  * default.css
  * @authors Joe Jiang (hijiangtao@gmail.com)
@@ -7,31 +8,81 @@
  */
 
 body {
-	margin: 0;
-	padding: 0;
-	background-color: white; 
+    margin: 0;
+    padding: 0;
+    background-color: white;
 }
 
-div {
-	position: absolute;
-	margin: 1rem;
-	height: calc(100vh - 2rem);
+#chart, #panel {
+    position: absolute;
+    margin: 1rem;
+    height: calc(100vh - 2rem);
 }
 
 #chart {
-	/*left: 50%;
+    /*left: 50%;
 	top: 50%;
 	transform: translate(-400px, -300px);
 	width: 800px;
 	height: 600px;*/
-
-	width: calc(80% - 2rem);
+    width: calc(80% - 2rem);
 }
+
 #panel {
-	left: 80%;
-	width: calc(20% - 2rem);
+    left: 80%;
+    width: calc(20% - 2rem);
 }
 
-#forcedLayoutView, #forcedLayoutCView {
-	/*display: none;*/
+/* STYLESHEET FOR COMPONENTS */
+div {
+	margin-top: .5rem;
+	margin-bottom: .5rem;
 }
+
+input {
+	border: 1px solid #AAA;
+	padding: 0;
+	height: calc(1.5rem - 2px);
+	/*width: 3rem;*/
+}
+
+label {
+	margin-right: .4rem;
+}
+
+select, button {
+	height: 1.5rem;
+    background: white;
+    width: 4.5rem;
+    cursor: pointer;
+}
+
+button {
+	border: 1px solid #AAA;
+	transition: .5s;
+}
+button:hover {
+	color: white;
+	background-color: rgba(250,150,100, 1);
+	transition: .5s;
+}
+
+table, th, td {
+	border: .5px solid gray;
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+th, td {
+	padding: .3rem .8rem;
+}
+
+#copyright {
+	position: absolute;
+	bottom: 0;
+	margin-bottom: -.5rem;
+	font-size: .8rem;
+	color: gray;
+}
+/* STYLESHEET FOR COMPONENTS */

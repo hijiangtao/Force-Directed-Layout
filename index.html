@@ -1,15 +1,92 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<title>Force Layout Example</title>
-<link rel="stylesheet" type="text/css" href="./default.css">
-</head>
-<body>
-    <div id="chart"></div>
-    <div id="panel"></div>
 
-    <script type="text/javascript" src='./home.js'></script>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Force Layout Example</title>
+	<link rel="stylesheet" type="text/css" href="./default.css">
+</head>
+
+<body>
+	<div id="chart"></div>
+	<div id="panel">
+		<h2>Force Directed Layout</h2>
+		<h3>Parameters</h3>
+		<div>
+			<label>Repulsion</label>
+			<input type="number" name="repulsion" value="200.0" id="repuval">
+		</div>
+		<div>
+			<label>Stiffness</label>
+			<input type="number" name="stiffness" value="200.0" id="stifval">
+		</div>
+		<div>
+			<label>Damping</label>
+			<input type="text" name="damping" value="0.9" id="dampval">
+			<br>
+		</div>
+		<div>
+			<label>Drawing Approach</label>
+			<select id="approachSel">
+				<option value="canvas">Canvas</option>
+				<option value="svg">SVG</option>
+			</select>
+		</div>
+		<div>
+			<button id="run">Start</button>
+		</div>
+		<hr>
+		<h3>Details</h3>
+		<div>
+			<table id="detailTable">
+				<tr>
+					<th>Item Desp.</th>
+					<th>Consuming</th>
+				</tr>
+				<tr>
+					<td>Drawing Approach</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Render Time</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Iteration Time</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Current Energy</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Node Number</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Edge Number</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Used JSHeapSize</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>Layout ChildNodes</td>
+					<td>-</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="copyright">
+			More detail at <a href="https://github.com/hijiangtao/forcedirectedLayout">Github</a>, © 2017 forcedirectedLayout. 
+			Created by <a href="https://hijiangtao.github.io/">Joe</a>.
+		</div>
+	</div>
+	
+
+	<script type="text/javascript" src='/dist/home.js'></script>
 </body>
+
 </html>
