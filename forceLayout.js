@@ -19,39 +19,47 @@ import {Node, Edge} from './Elements';
  * @param {Number} mass     [description]
  */
 let Point = function(position, id = -1, group = -1, mass = 1.0) {
-	this.p = position;
-	this.m = mass;
-	this.v = new Vector(0, 0); // velocity
-	this.a = new Vector(0, 0); // acceleration
-	this.id = id;
-	this.group = group;
+	this.p = position; // position of Point, with [x, y] in Vector
+	this.m = mass; // mass of Point, default to 1.0
+	this.v = new Vector(0, 0); // velocity, init with x=0, y=0
+	this.a = new Vector(0, 0); // acceleration, init with x=0, y=0
+	this.id = id; // id of Point, defaults to -1
+	this.group = group; // group of Point, defaults to -1
 
 	let self = this;
+	/**
+	 * Update Point acceleration, acceleration = force/mass
+	 * @param  {[type]} force [description]
+	 * @return {[type]}       [description]
+	 */
 	this.updateAcc = function(force) {
 		self.a = self.a.add(force.divide(self.m));
 	}
 }
 
 /**
- * Force Layout class
+ * Force Layout class: The main class to construct Force Directed Layout Structure, calculate the Points and Edges state and render them to the page
+ *
+ * setData: clean all stored data and set data with passed variable
+ * start: start to update Points and Edges states and render them until the total energy less than minEnergyThreshold
  */
 class forceLayout {
 	constructor(options) {
 		this.props = {
-			approach: 'canvas',
-			detail: true,
-			parentId: 'chart',
-			containerId: 'forcedLayoutView',
-			width: 800, // DOM width
-			height: 600, // DOM height
+			approach: 'canvas', // render approach, svg or canvas
+			detail: true, // show the details or not
+			parentId: 'chart', // id of DOM parentNode
+			containerId: 'forcedLayoutView', // DOM id
+			width: 800, // Rendered DOM width
+			height: 600, // Rendered DOM height
 			stiffness: 200.0, // spring stiffness
 			repulsion: 200.0, // repulsion
 			damping: 0.8, // volocity damping factor
 			minEnergyThreshold: 0.1, // threshold to determine whether to stop
 			maxSpeed: 1000, // max node speed
-			defSpringLen: 20,
-			coulombDisScale: 0.01,
-			tickInterval: 0.02
+			defSpringLen: 20, // default Spring length
+			coulombDisScale: 0.01, // default Coulombs Constant
+			tickInterval: 0.02 // default time, used in velocity, acceleration and position's updating
 		};
 
 		this.nodes = [];
@@ -61,13 +69,13 @@ class forceLayout {
 		this.nodePoints = new Map();
 		this.edgeSprings = new Map();
 
-		this.initState = true;
+		this.initState = true; 
 		this.nextEdgeId = 0;
 		this.iterations = 0;
 		this.renderTime = 0;
 
-		this.center = {};
-		this.color = d3.scaleOrdinal(d3.schemeCategory20);
+		this.center = {}; // DOM center position
+		this.color = d3.scaleOrdinal(d3.schemeCategory20); // color schema
 
 		this.canvas = {};
 		this.ctx = {};
@@ -84,6 +92,10 @@ class forceLayout {
 		}
 	}
 
+	/**
+	 * add one Node
+	 * @param {[type]} node [description]
+	 */
 	addNode(node) {
 		if (!(node.id in this.nodeSet)) {
 			this.nodes.push(node);
@@ -92,6 +104,10 @@ class forceLayout {
 		this.nodeSet[node.id] = node;
 		return node;
 	};
+	/**
+	 * add Nodes
+	 * @param {[type]} data [description]
+	 */
 	addNodes(data) {
 		let len = data.length;
 		for (let i = 0; i < len; i++) {
@@ -99,7 +115,10 @@ class forceLayout {
 			this.addNode(node);
 		}
 	};
-
+	/**
+	 * add one Edge
+	 * @param {[type]} edge [description]
+	 */
 	addEdge(edge) {
 		if (!(edge.id in this.edgeSet)) {
 			this.edges.push(edge);
@@ -108,6 +127,10 @@ class forceLayout {
 		this.edgeSet[edge.id] = edge;
 		return edge;
 	};
+	/**
+	 * add Edges
+	 * @param {[type]} data [description]
+	 */
 	addEdges(data) {
 		let len = data.length;
 		for (let i = 0; i < len; i++) {
@@ -128,6 +151,10 @@ class forceLayout {
 		}
 	};
 
+	/**
+	 * set init node and edge data for this instance
+	 * @param {[type]} data [description]
+	 */
 	setData(data) {
 		// clean all data
 		this.nodes = [];
@@ -150,6 +177,12 @@ class forceLayout {
 		}
 	}
 
+	/**
+	 * the calculation and rendering entrance of layout
+	 *
+	 * nodePoints and edgeSprings should be updated first, then calculate nodes and edges' position frame by frame, until the total energy is less than minEnergyThreshold or iteration time reaches 1000000, as well as render them to page.
+	 * @return {[type]} [description]
+	 */
 	start() {
 		let self = this,
 			nlen = this.nodes.length,
@@ -201,6 +234,11 @@ class forceLayout {
 		});
 	}
 
+	/**
+	 * update details in page (container: table)
+	 * @param  {[type]} energy [description]
+	 * @return {[type]}        [description]
+	 */
 	updateDetails(energy) {
 		let ths = document.getElementById('detailTable').getElementsByTagName('td');
 		if (this.iterations === 1) {
@@ -246,7 +284,7 @@ class forceLayout {
 	}
 
 	/**
-	 * Update repulsion between nodes
+	 * Update repulsion forces between nodes
 	 * @return {[type]} [description]
 	 */
 	updateCoulombsLaw() {
@@ -270,7 +308,7 @@ class forceLayout {
 	}
 
 	/**
-	 * update attraction between edges
+	 * update attraction forces between nodes in each edge
 	 * @return {[type]} [description]
 	 */
 	updateHookesLaw() {
@@ -290,6 +328,8 @@ class forceLayout {
 
 	/**
 	 * Attract to center with little repulsion acceleration
+	 *
+	 * the divisor is set to 100.0 by experience, but lack of provements
 	 * @return {[type]} [description]
 	 */
 	attractToCentre() {
@@ -323,7 +363,7 @@ class forceLayout {
 	}
 
 	/**
-	 * calculate point's position
+	 * update point's position
 	 * @param  {[type]} interval [description]
 	 * @return {[type]}          [description]
 	 */
@@ -355,7 +395,7 @@ class forceLayout {
 	}
 
 	/**
-	 * get current points' boundary
+	 * Deprecated function: get current points' boundary
 	 * @return {[type]} [description]
 	 */
 	getBounds() {
@@ -405,7 +445,7 @@ class forceLayout {
 		}
 
 		/**
-		 * Clean canvas layout
+		 * Clean canvas layout if current approach is canvas
 		 */
 		if (this.props.approach === 'canvas') {
 			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -421,6 +461,10 @@ class forceLayout {
 			drawNode(key, val);
 		});
 
+		/**
+		 * initialize container, svg or canvas
+		 * @return {[type]} [description]
+		 */
 		function initContainerSize() {
 			let e = document.getElementById(self.props.containerId);
 			if (e) {
@@ -443,11 +487,10 @@ class forceLayout {
 			svg.setAttribute('id', self.props.containerId);
 			document.getElementById(self.props.parentId).appendChild(svg);
 
-			// svg.innerHTML = '';
 			svg.setAttribute('width', self.props.width);
 			svg.setAttribute('height', self.props.height);
 		}
-
+		
 		function drawNode(key, val) {
 			let fillStyle = self.color(val.group),
 				strokeStyle = 'rgb(255,255,255)',
@@ -510,31 +553,12 @@ class forceLayout {
 					.style('stroke', strokeStyle)
 					.style('stroke-width', strokeWidth);
 			}
-			// if (sNode.empty()) {
-			// 	sNode = container.append('circle')
-			// 		.attr('id', `node-${source.id}`)
-			// 		.attr('r', 2)
-			// 		.attr('fill', 'black')
-			// 		.attr('stroke', 'none');
-			// }
-			// if (tNode.empty()) {
-			// 	tNode = container.append('circle')
-			// 		.attr('id', `node-${target.id}`)
-			// 		.attr('r', 2)
-			// 		.attr('fill', 'black')
-			// 		.attr('stroke', 'none');
-			// }
 
 			// update nodes and edge position
 			edge.attr('x1', source.p.x)
 				.attr('y1', source.p.y)
 				.attr('x2', target.p.x)
 				.attr('y2', target.p.y);
-
-			// sNode.attr('cx', source.p.x)
-			// 	.attr('cy', source.p.y);
-			// tNode.attr('cx', target.p.x)
-			// 	.attr('cy', target.p.y);
 		}
 
 	}
