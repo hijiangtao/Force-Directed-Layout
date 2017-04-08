@@ -9,6 +9,6 @@
 import data from './data'
 import forceLayout from './forceLayout'
 
-let ins = new forceLayout('forcedLayoutView');
+let ins = new forceLayout('chart');
 ins.setData(data);
 ins.start();

@@ -6,12 +6,32 @@
  * @version $Id$
  */
 
-#chart {
+body {
+	margin: 0;
+	padding: 0;
+	background-color: white; 
+}
+
+div {
 	position: absolute;
-	left: 50%;
+	margin: 1rem;
+	height: calc(100vh - 2rem);
+}
+
+#chart {
+	/*left: 50%;
 	top: 50%;
 	transform: translate(-400px, -300px);
 	width: 800px;
-	height: 600px;
-	/*background-color: red;*/
+	height: 600px;*/
+
+	width: calc(80% - 2rem);
+}
+#panel {
+	left: 80%;
+	width: calc(20% - 2rem);
+}
+
+#forcedLayoutView, #forcedLayoutCView {
+	/*display: none;*/
 }
