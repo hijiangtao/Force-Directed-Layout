@@ -10,6 +10,10 @@
 
 Run the webpack and get the home.js at `dist` directory. The main library file is `forceLayout.js`, wrote in ES6 grammar.
 
+## Other language
+
+[中文文档](./README_zh.md)
+
 Joe
 
 2017.4
