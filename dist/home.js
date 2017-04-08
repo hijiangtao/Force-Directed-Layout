@@ -152,6 +152,8 @@
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	// import select from 'd3-selection';
+	
 	
 	var _d = __webpack_require__(3);
 	
@@ -185,21 +187,29 @@
 		var group = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
 		var mass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1.0;
 	
-		this.p = position;
-		this.m = mass;
-		this.v = new _Vector2.default(0, 0); // velocity
-		this.a = new _Vector2.default(0, 0); // acceleration
-		this.id = id;
-		this.group = group;
+		this.p = position; // position of Point, with [x, y] in Vector
+		this.m = mass; // mass of Point, default to 1.0
+		this.v = new _Vector2.default(0, 0); // velocity, init with x=0, y=0
+		this.a = new _Vector2.default(0, 0); // acceleration, init with x=0, y=0
+		this.id = id; // id of Point, defaults to -1
+		this.group = group; // group of Point, defaults to -1
 	
 		var self = this;
+		/**
+	  * Update Point acceleration, acceleration = force/mass
+	  * @param  {[type]} force [description]
+	  * @return {[type]}       [description]
+	  */
 		this.updateAcc = function (force) {
 			self.a = self.a.add(force.divide(self.m));
 		};
 	};
 	
 	/**
-	 * Force Layout class
+	 * Force Layout class: The main class to construct Force Directed Layout Structure, calculate the Points and Edges state and render them to the page
+	 *
+	 * setData: clean all stored data and set data with passed variable
+	 * start: start to update Points and Edges states and render them until the total energy less than minEnergyThreshold
 	 */
 	
 	var forceLayout = function () {
@@ -207,20 +217,20 @@
 			_classCallCheck(this, forceLayout);
 	
 			this.props = {
-				approach: 'canvas',
-				detail: true,
-				parentId: 'chart',
-				containerId: 'forcedLayoutView',
-				width: 800, // DOM width
-				height: 600, // DOM height
+				approach: 'canvas', // render approach, svg or canvas
+				detail: true, // show the details or not
+				parentId: 'chart', // id of DOM parentNode
+				containerId: 'forcedLayoutView', // DOM id
+				width: 800, // Rendered DOM width
+				height: 600, // Rendered DOM height
 				stiffness: 200.0, // spring stiffness
 				repulsion: 200.0, // repulsion
 				damping: 0.8, // volocity damping factor
 				minEnergyThreshold: 0.1, // threshold to determine whether to stop
 				maxSpeed: 1000, // max node speed
-				defSpringLen: 20,
-				coulombDisScale: 0.01,
-				tickInterval: 0.02
+				defSpringLen: 20, // default Spring length
+				coulombDisScale: 0.01, // default Coulombs Constant
+				tickInterval: 0.02 // default time, used in velocity, acceleration and position's updating
 			};
 	
 			this.nodes = [];
@@ -235,8 +245,12 @@
 			this.iterations = 0;
 			this.renderTime = 0;
 	
-			this.center = {};
-			this.color = d3.scaleOrdinal(d3.schemeCategory20);
+			this.center = {}; // DOM center position
+			this.color = function (n) {
+				var schemas = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+	
+				return schemas[n % schemas.length];
+			}; // color schema
 	
 			this.canvas = {};
 			this.ctx = {};
@@ -253,6 +267,12 @@
 			}
 		}
 	
+		/**
+	  * add one Node
+	  * @param {[type]} node [description]
+	  */
+	
+	
 		_createClass(forceLayout, [{
 			key: 'addNode',
 			value: function addNode(node) {
@@ -265,6 +285,11 @@
 			}
 		}, {
 			key: 'addNodes',
+	
+			/**
+	   * add Nodes
+	   * @param {[type]} data [description]
+	   */
 			value: function addNodes(data) {
 				var len = data.length;
 				for (var i = 0; i < len; i++) {
@@ -274,6 +299,11 @@
 			}
 		}, {
 			key: 'addEdge',
+	
+			/**
+	   * add one Edge
+	   * @param {[type]} edge [description]
+	   */
 			value: function addEdge(edge) {
 				if (!(edge.id in this.edgeSet)) {
 					this.edges.push(edge);
@@ -284,6 +314,11 @@
 			}
 		}, {
 			key: 'addEdges',
+	
+			/**
+	   * add Edges
+	   * @param {[type]} data [description]
+	   */
 			value: function addEdges(data) {
 				var len = data.length;
 				for (var i = 0; i < len; i++) {
@@ -305,6 +340,12 @@
 			}
 		}, {
 			key: 'setData',
+	
+	
+			/**
+	   * set init node and edge data for this instance
+	   * @param {[type]} data [description]
+	   */
 			value: function setData(data) {
 				// clean all data
 				this.nodes = [];
@@ -326,6 +367,14 @@
 					this.center = new _Vector2.default(this.props.width / 2, this.props.height / 2);
 				}
 			}
+	
+			/**
+	   * the calculation and rendering entrance of layout
+	   *
+	   * nodePoints and edgeSprings should be updated first, then calculate nodes and edges' position frame by frame, until the total energy is less than minEnergyThreshold or iteration time reaches 1000000, as well as render them to page.
+	   * @return {[type]} [description]
+	   */
+	
 		}, {
 			key: 'start',
 			value: function start() {
@@ -378,6 +427,13 @@
 					}
 				});
 			}
+	
+			/**
+	   * update details in page (container: table)
+	   * @param  {[type]} energy [description]
+	   * @return {[type]}        [description]
+	   */
+	
 		}, {
 			key: 'updateDetails',
 			value: function updateDetails(energy) {
@@ -428,7 +484,7 @@
 			}
 	
 			/**
-	   * Update repulsion between nodes
+	   * Update repulsion forces between nodes
 	   * @return {[type]} [description]
 	   */
 	
@@ -455,7 +511,7 @@
 			}
 	
 			/**
-	   * update attraction between edges
+	   * update attraction forces between nodes in each edge
 	   * @return {[type]} [description]
 	   */
 	
@@ -478,6 +534,8 @@
 	
 			/**
 	   * Attract to center with little repulsion acceleration
+	   *
+	   * the divisor is set to 100.0 by experience, but lack of provements
 	   * @return {[type]} [description]
 	   */
 	
@@ -517,7 +575,7 @@
 			}
 	
 			/**
-	   * calculate point's position
+	   * update point's position
 	   * @param  {[type]} interval [description]
 	   * @return {[type]}          [description]
 	   */
@@ -555,7 +613,7 @@
 			}
 	
 			/**
-	   * get current points' boundary
+	   * Deprecated function: get current points' boundary
 	   * @return {[type]} [description]
 	   */
 	
@@ -611,7 +669,7 @@
 				}
 	
 				/**
-	    * Clean canvas layout
+	    * Clean canvas layout if current approach is canvas
 	    */
 				if (this.props.approach === 'canvas') {
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -626,6 +684,10 @@
 					drawNode(key, val);
 				});
 	
+				/**
+	    * initialize container, svg or canvas
+	    * @return {[type]} [description]
+	    */
 				function initContainerSize() {
 					var e = document.getElementById(self.props.containerId);
 					if (e) {
@@ -648,7 +710,6 @@
 					svg.setAttribute('id', self.props.containerId);
 					document.getElementById(self.props.parentId).appendChild(svg);
 	
-					// svg.innerHTML = '';
 					svg.setAttribute('width', self.props.width);
 					svg.setAttribute('height', self.props.height);
 				}
@@ -699,35 +760,14 @@
 					}
 	
 					var edge = d3.select('#edge-' + key),
-					    sNode = d3.select('#node-' + source.id),
-					    tNode = d3.select('#node-' + target.id),
 					    container = d3.select('#' + self.props.containerId);
 	
 					if (edge.empty()) {
 						edge = container.append('line').attr('id', 'edge-' + key).style('stroke', strokeStyle).style('stroke-width', strokeWidth);
 					}
-					// if (sNode.empty()) {
-					// 	sNode = container.append('circle')
-					// 		.attr('id', `node-${source.id}`)
-					// 		.attr('r', 2)
-					// 		.attr('fill', 'black')
-					// 		.attr('stroke', 'none');
-					// }
-					// if (tNode.empty()) {
-					// 	tNode = container.append('circle')
-					// 		.attr('id', `node-${target.id}`)
-					// 		.attr('r', 2)
-					// 		.attr('fill', 'black')
-					// 		.attr('stroke', 'none');
-					// }
 	
 					// update nodes and edge position
 					edge.attr('x1', source.p.x).attr('y1', source.p.y).attr('x2', target.p.x).attr('y2', target.p.y);
-	
-					// sNode.attr('cx', source.p.x)
-					// 	.attr('cy', source.p.y);
-					// tNode.attr('cx', target.p.x)
-					// 	.attr('cy', target.p.y);
 				}
 			}
 		}]);
