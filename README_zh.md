@@ -27,12 +27,15 @@
 * 在实现本方法前, 我阅读了 [springy](https://github.com/dhotson/springy) 项目的代码, 针对其中组织数据以及更新 Edge / Node 的部分研究过, 在实现中采用了相似的数据结构与逻辑进行实现;
 * 函数封装以及相关力导向图概念参考了 [d3-force](https://github.com/d3/d3-force) (D3 wiki) 的相关章节;
 * 本实现中用例数据主要来自 [D3V4 Force Directed Layout Example](https://bl.ocks.org/mbostock/4062045), 做了少许修改;
+* 本实现中现使用到 **d3** 的选择器功能用于选择节点操作, **d3** 的刻度映射功能用于生成颜色映射方案, 该部分造成了打包后的整体文件过大, 将于下一步工作中 **document.getElementsByX** 原生方法替换;
 
 ## 配置方法
 
 * 运行 webpack 得到运行脚本 `home.js` (存放于 *dist* 文件夹中), 可以打开 `index.html` 查看效果;
 * 主要库文件为 `forceLayout.js`, 用 ES6 语法编写;
 * 待完善;
+
+## 待完善工作
 
 Joe
 

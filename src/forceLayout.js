@@ -7,6 +7,7 @@
 
 'use strict'
 import * as d3 from 'd3';
+// import select from 'd3-selection';
 import Vector from './Vector';
 import Spring from './Spring';
 import {Node, Edge} from './Elements';
@@ -75,7 +76,11 @@ class forceLayout {
 		this.renderTime = 0;
 
 		this.center = {}; // DOM center position
-		this.color = d3.scaleOrdinal(d3.schemeCategory20); // color schema
+		this.color = function(n) {
+			let schemas = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300", "#8b0707", "#651067", "#329262", "#5574a6", "#3b3eac"];
+
+			return schemas[ n % schemas.length ];
+		}; // color schema
 
 		this.canvas = {};
 		this.ctx = {};
@@ -543,8 +548,6 @@ class forceLayout {
 			}
 
 			let edge = d3.select(`#edge-${key}`),
-				sNode = d3.select(`#node-${source.id}`),
-				tNode = d3.select(`#node-${target.id}`),
 				container = d3.select(`#${self.props.containerId}`);
 
 			if (edge.empty()) {
