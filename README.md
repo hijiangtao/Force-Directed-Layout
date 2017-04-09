@@ -33,7 +33,7 @@ forceLayout
 └── webpack.config.js
 ```
 
-### TBD.
+### TBD
 
 ### Reference 
 
@@ -43,15 +43,29 @@ forceLayout
 
 ## Configurations
 
-Run the webpack and get the home.js at `dist` directory. The main library file is `forceLayout.js`.
+* Run the webpack and get the home.js at `dist` directory. The main library file is `forceLayout.js`.
+* Data format:
+
+```
+let data = {
+  "nodes": [
+    {"id": "DataId", "group": 1},
+    ...
+  ],
+  "edges": [
+    {"source": "Node1", "target": "Node2", "value": 1},
+    ...
+  ]
+}
+```
 
 TBD
 
 ## Other language
 
-TBD
-
 [中文文档](./README_zh.md)
+
+TBD
 
 Joe
 
