@@ -2,13 +2,13 @@
 
 ## 介绍
 
-本文件是一个实现力导向布局结构图的 JavaScript 库文件, 不依赖任何第三方库, 代码采用 ES6 语法编写, 可实现 SVG/Canvas 两种绘制方法, 布局更新收敛条件可以根据总迭代次数或者质点群最小能量值阈值来确定.
+Force Directed Layout 是一个实现力导向布局结构图的 JavaScript 库, 不依赖任何第三方库, 代码采用 ES6 语法编写, 可实现 SVG/Canvas 两种绘制方法, 布局收敛条件可根据总迭代次数或质点群能量值阈值来确定.
 
 ![Force Directed Layout Demo](/assets/demo.png "Force Directed Layout Demo")
 
 ## 说明
 
-### 文件结构与大小
+### 项目结构与库大小
 
 * 项目文件结构如下, 实现库源代码置于 `src` 文件夹中, `index.js` 为样例页面引用脚本文件, `forceLayout.js` 为项目主代码入口;
 
