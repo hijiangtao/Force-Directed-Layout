@@ -6,8 +6,6 @@
  */
 
 'use strict'
-import * as d3 from 'd3';
-// import select from 'd3-selection';
 import Vector from './Vector';
 import Spring from './Spring';
 import {Node, Edge} from './Elements';
@@ -37,6 +35,17 @@ let Point = function(position, id = -1, group = -1, mass = 1.0) {
 		self.a = self.a.add(force.divide(self.m));
 	}
 }
+
+/**
+ * set attributes for one element 
+ * @param {[type]} el    [description]
+ * @param {[type]} attrs [description]
+ */
+let setAttributes = function(el, attrs) {
+  for (let key in attrs) {
+    el.setAttribute(key, attrs[key]);
+  }
+};
 
 /**
  * Force Layout class: The main class to construct Force Directed Layout Structure, calculate the Points and Edges state and render them to the page
@@ -514,20 +523,42 @@ class forceLayout {
 				return;
 			}
 
-			let node = d3.select(`#node-${key}`),
-				container = d3.select(`#${self.props.containerId}`);
+			// let node = d3.select(`#node-${key}`),
+			// 	container = d3.select(`#${self.props.containerId}`);
 
-			if (node.empty()) {
-				node = container.append('circle')
-					.attr('id', `node-${key}`)
-					.attr('r', r)
-					.attr('fill', fillStyle)
-					.attr('stroke', strokeStyle)
-					.attr('stroke-width', lineWidth);
+			// if (node.empty()) {
+			// 	node = container.append('circle')
+			// 		.attr('id', `node-${key}`)
+			// 		.attr('r', r)
+			// 		.attr('fill', fillStyle)
+			// 		.attr('stroke', strokeStyle)
+			// 		.attr('stroke-width', lineWidth);
+			// }
+
+			// node.attr('cx', val.p.x)
+			// 	.attr('cy', val.p.y);
+
+			let node = document.getElementById(`node-${key}`),
+				container = document.getElementById(self.props.containerId);
+
+			if (!node) {
+				node = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+				
+				node.id = `node-${key}`;
+				setAttributes(node, {
+					'r': r,
+					'fill': fillStyle,
+					'stroke': strokeStyle,
+					'stroke-width': lineWidth
+				});
+
+				container.appendChild(node);
 			}
 
-			node.attr('cx', val.p.x)
-				.attr('cy', val.p.y);
+			setAttributes(node, {
+				'cx': val.p.x,
+				'cy': val.p.y
+			});
 		}
 
 		function drawEdge(key, val) {
@@ -547,21 +578,45 @@ class forceLayout {
 				return;
 			}
 
-			let edge = d3.select(`#edge-${key}`),
-				container = d3.select(`#${self.props.containerId}`);
+			// let edge = d3.select(`#edge-${key}`),
+			// 	container = d3.select(`#${self.props.containerId}`);
 
-			if (edge.empty()) {
-				edge = container.append('line')
-					.attr('id', `edge-${key}`)
-					.style('stroke', strokeStyle)
-					.style('stroke-width', strokeWidth);
+			// if (edge.empty()) {
+			// 	edge = container.append('line')
+			// 		.attr('id', `edge-${key}`)
+			// 		.style('stroke', strokeStyle)
+			// 		.style('stroke-width', strokeWidth);
+			// }
+
+			// // update nodes and edge position
+			// edge.attr('x1', source.p.x)
+			// 	.attr('y1', source.p.y)
+			// 	.attr('x2', target.p.x)
+			// 	.attr('y2', target.p.y);
+			 	
+			let edge = document.getElementById(`edge-${key}`),
+				container = document.getElementById(self.props.containerId);
+
+			if (!edge) {
+				edge = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+				
+				edge.id = `edge-${key}`;
+
+				setAttributes(edge, {
+					'stroke': strokeStyle,
+					'stroke-width': strokeWidth
+				});
+
+				container.appendChild(edge);
 			}
 
 			// update nodes and edge position
-			edge.attr('x1', source.p.x)
-				.attr('y1', source.p.y)
-				.attr('x2', target.p.x)
-				.attr('y2', target.p.y);
+			setAttributes(edge, {
+				'x1': source.p.x,
+				'y1': source.p.y,
+				'x2': target.p.x,
+				'y2': target.p.y
+			});
 		}
 
 	}

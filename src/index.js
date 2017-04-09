@@ -2,13 +2,16 @@
  * index.js
  * @authors Joe Jiang (hijiangtao@gmail.com)
  * @date    2017-04-07 17:36:54
- * @version $Id$
  */
 
 'use strict'
 import data from './data'
 import forceLayout from './forceLayout'
 
+/**
+ * the binding render function
+ * @return {[type]} [description]
+ */
 let startRender = function() {
 	let approachSel = document.getElementById('approachSel'),
 		repulsion = document.getElementById('repuval').value,
@@ -22,7 +25,6 @@ let startRender = function() {
 		height = Number.parseFloat(style.getPropertyValue("height")),
 		width = Number.parseFloat(style.getPropertyValue("width"));
 
-	console.log('get all parameters.');
 	if (!(isNaN(repulsion) || isNaN(stiffness) || isNaN(damping))) {
 		let ins = new forceLayout({
 			'parentId': parentid,
@@ -41,7 +43,7 @@ let startRender = function() {
 }
 
 /**
- * [run description]
+ * DOM bind events
  * @type {[type]}
  */
 window.onload = function() {
