@@ -4,8 +4,6 @@
   "description": "forceLayout",
   "main": "index.js",
   "dependencies": {
-    "d3": "^4.7.4",
-    "d3-selection": "^1.0.5",
     "path": "^0.12.7"
   },
   "devDependencies": {

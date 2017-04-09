@@ -1,8 +1,33 @@
 # forcedirectedLayout
 
-## 简要介绍
+## 说明
 
-本 JavaScript 在实现过程中参考了众多优秀内容, 以下针对几个关键点和参考作出简要说明. 
+### 文件大小结构介绍
+
+* 项目文件结构如下, 实现库源代码置于 `src` 文件夹中, `index.js` 为样例页面引用脚本文件, `forceLayout.js` 为项目主代码入口;
+
+```
+forceLayout
+├── default.css
+├── dist
+│   ├── home.js
+│   └── home.js.map
+├── index.html
+├── LICENSE
+├── package.json
+├── README.md
+├── README_zh.md
+├── src
+│   ├── data.js
+│   ├── Elements.js
+│   ├── forceLayout.js
+│   ├── index.js
+│   ├── Spring.js
+│   └── Vector.js
+└── webpack.config.js
+```
+
+* 采用 Babel 将 ES6 语法文件转换为兼容代码后, 不包含测试数据的实现库代码大小(未压缩)为 26.8 kB, 包含测试数据的实现库代码大小(未压缩)为 45.3 kB;
 
 ### 排斥力, 吸引力与向心力
 
@@ -36,6 +61,8 @@
 * 待完善;
 
 ## 待完善工作
+
+* 待完善;
 
 Joe
 
