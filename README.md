@@ -1,4 +1,4 @@
-# forcedirectedLayout
+# Force Directed Layout
 
 ## Introduction
 
