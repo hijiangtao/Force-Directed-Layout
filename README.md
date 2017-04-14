@@ -4,6 +4,8 @@
 
 Force Directed Layout is a JavaScript library to implement force-directed layout visualization, you can just import the module and code without install any other extra libraries. It is written using ES2015 modules, and provide users with two rendering approaches: SVG or Canvas. The convergence condition can be decided by total iteration time or minimal energy threshold.
 
+There are already several similar libraries in the community, such as [D3](https://d3js.org/), [springy](https://github.com/dhotson/springy), etc. But why should I rewrote a new one? The motivation of this project is trying to create a visualization library by using ES2015. A more detailed explanation of the codes is put in comments, hope this work can help you more or less.
+
 ![Force Directed Layout Demo](/assets/demo.png "Force Directed Layout Demo")
 
 ## Details
