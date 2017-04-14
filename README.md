@@ -10,12 +10,17 @@ There are already several similar libraries in the community, such as [D3](https
 
 ## Details
 
+### Demo and codes
+
+* [Online Demo](https://hijiangtao.github.io/Force-Directed-Layout/)
+* [Main File](https://github.com/hijiangtao/Force-Directed-Layout/src/forceLayout.js)
+
 ### Project structure and library size
 
 * Structure of this project shows below, the main library files locate in `src` directory, `index.js` is the script file for demo page, `forceLayout.js` is the entrance file of this project;
 
 ```
-forceLayout
+Force-Directed-Layout
 ├── default.css
 ├── dist
 │   ├── home.js
