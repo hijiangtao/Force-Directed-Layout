@@ -57,4 +57,9 @@ window.onload = function() {
 			if (e.which == 13) startRender();
 		});
 	});
+
+	/**
+	 * Initial the page with a default rendering effect
+	 */
+	startRender();
 }
