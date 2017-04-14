@@ -11,7 +11,7 @@ Force Directed Layout 是一个实现力导向布局结构图的 JavaScript 库,
 ### 在线演示与主要代码入口
 
 * [在线演示地址](https://hijiangtao.github.io/Force-Directed-Layout/)
-* [主要代码文件](https://github.com/hijiangtao/Force-Directed-Layout/src/forceLayout.js)
+* [主要代码文件](https://github.com/hijiangtao/Force-Directed-Layout/blob/master/src/forceLayout.js)
 
 ### 项目结构与库大小
 

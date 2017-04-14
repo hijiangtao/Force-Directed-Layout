@@ -13,7 +13,7 @@ There are already several similar libraries in the community, such as [D3](https
 ### Demo and codes
 
 * [Online Demo](https://hijiangtao.github.io/Force-Directed-Layout/)
-* [Main File](https://github.com/hijiangtao/Force-Directed-Layout/src/forceLayout.js)
+* [Main File](https://github.com/hijiangtao/Force-Directed-Layout/blob/master/src/forceLayout.js)
 
 ### Project structure and library size
 
