@@ -1,5 +1,7 @@
 # Force Directed Layout
 
+[![codebeat badge](https://codebeat.co/badges/3c37f294-c4e8-44ae-bab0-e30710c364ef)](https://codebeat.co/projects/github-com-hijiangtao-force-directed-layout-master)
+
 ## Introduction
 
 Force Directed Layout is a JavaScript library to implement force-directed layout visualization, you can just import the module and code without install any other extra libraries. It is written using ES2015 modules, and provide users with two rendering approaches: SVG or Canvas. The convergence condition can be decided by total iteration time or minimal energy threshold.
