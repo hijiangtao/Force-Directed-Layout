@@ -1,6 +1,7 @@
 # Force Directed Layout
 
-[![codebeat badge](https://codebeat.co/badges/3c37f294-c4e8-44ae-bab0-e30710c364ef)](https://codebeat.co/projects/github-com-hijiangtao-force-directed-layout-master)
+[![codebeat badge](https://codebeat.co/badges/3c37f294-c4e8-44ae-bab0-e30710c364ef)](https://codebeat.co/projects/github-com-hijiangtao-force-directed-layout-master) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
 
 ## Introduction
 
